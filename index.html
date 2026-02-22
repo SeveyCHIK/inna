@@ -6,7 +6,7 @@
     <title>8 Марта | Для Инны Николаевны</title>
     
     <!-- Шрифты -->
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&family=Oswald:wght@700&display=swap" rel="stylesheet">
     
     <style>
         /* ================= БАЗОВЫЕ НАСТРОЙКИ ================= */
@@ -94,7 +94,7 @@
             width: 100%;
             display: flex;
             justify-content: center;
-            padding: 20px;
+            padding: 15px; /* Чуть уменьшил отступы по краям для мобилок */
         }
 
         #main-wrapper.visible {
@@ -121,12 +121,18 @@
             -webkit-backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 30px;
-            padding: 40px 25px;
+            padding: 30px 20px; /* Оптимизировал для длинного текста */
             text-align: center;
             width: 100%;
-            max-width: 400px;
+            max-width: 420px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            /* Добавлено, чтобы карточка могла скроллиться на очень маленьких экранах */
+            max-height: 85vh; 
+            overflow-y: auto;
         }
+
+        /* Убираем страшный ползунок прокрутки, оставляя функционал */
+        .glass-card::-webkit-scrollbar { width: 0; }
 
         .subtitle {
             font-size: 0.8rem;
@@ -135,26 +141,54 @@
             color: var(--primary-color);
             font-weight: 700;
             display: block;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             transition: color 0.5s ease;
         }
 
         h1 {
             font-family: 'Oswald', sans-serif;
-            font-size: 4.5rem;
+            font-size: 4rem;
             line-height: 1;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             color: var(--text-color);
             text-shadow: 0 0 20px var(--glow-color);
         }
 
-        p.message {
-            font-weight: 400;
-            line-height: 1.5;
-            color: #ddd;
-            margin-bottom: 30px;
-            font-size: 1rem;
-            padding: 0 10px;
+        /* --- БЛОК ПОЗДРАВЛЕНИЙ --- */
+        .wishes-box {
+            margin: 20px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            text-align: left;
+        }
+
+        .wish-item {
+            font-size: 0.95rem;
+            line-height: 1.4;
+            color: #e0e0e0;
+            background: rgba(255, 255, 255, 0.03);
+            border-left: 3px solid var(--primary-color);
+            padding: 10px 15px;
+            border-radius: 0 10px 10px 0;
+            opacity: 0; /* Скрыто до анимации */
+            transform: translateX(-15px);
+            transition: border-color 0.5s ease;
+        }
+
+        /* Анимация появления каждого пункта по очереди */
+        #main-wrapper.visible .wish-item:nth-child(1) { animation: slideIn 0.5s forwards 0.5s; }
+        #main-wrapper.visible .wish-item:nth-child(2) { animation: slideIn 0.5s forwards 0.7s; }
+        #main-wrapper.visible .wish-item:nth-child(3) { animation: slideIn 0.5s forwards 0.9s; }
+        #main-wrapper.visible .wish-item:nth-child(4) { animation: slideIn 0.5s forwards 1.1s; }
+
+        @keyframes slideIn {
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .wish-icon {
+            margin-right: 8px;
+            font-size: 1.1rem;
         }
 
         /* ================= ПЛЕЕР ================= */
@@ -163,11 +197,11 @@
             align-items: center;
             justify-content: center;
             gap: 15px;
-            margin-bottom: 25px;
+            margin: 25px 0;
         }
 
         .play-btn {
-            width: 80px; height: 80px;
+            width: 70px; height: 70px;
             border-radius: 50%;
             background: rgba(0,0,0,0.3);
             border: 2px solid var(--primary-color);
@@ -186,7 +220,7 @@
         }
 
         .play-btn svg {
-            width: 30px; height: 30px;
+            width: 25px; height: 25px;
             fill: currentColor;
             margin-left: 5px;
         }
@@ -224,19 +258,20 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            padding: 12px 25px;
+            gap: 8px;
+            padding: 12px 20px;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 20px;
             color: #fff;
             text-decoration: none;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 700;
             letter-spacing: 1px;
             text-transform: uppercase;
             transition: all 0.3s ease;
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
         }
 
         .download-btn:active, .download-btn:hover {
@@ -246,10 +281,7 @@
             transform: translateY(-2px);
         }
 
-        .download-btn svg {
-            width: 18px; height: 18px;
-            fill: currentColor;
-        }
+        .download-btn svg { width: 16px; height: 16px; fill: currentColor; }
 
         /* ================= ПАНЕЛЬ ТЕМ ================= */
         .theme-switcher {
@@ -275,7 +307,7 @@
         /* ================= ПОДПИСЬ ================= */
         .author {
             position: absolute;
-            bottom: 20px;
+            bottom: 15px;
             width: 100%;
             text-align: center;
             font-size: 0.7rem;
@@ -304,8 +336,7 @@
 
     <div class="ambient-bg"></div>
 
-    <!-- ЛОКАЛЬНЫЙ АУДИО ФАЙЛ (ЗАГРУЖЕННЫЙ НА GITHUB ВМЕСТЕ С HTML) -->
-    <!-- Никаких crossorigin, так как файл на том же сервере -->
+    <!-- ЛОКАЛЬНЫЙ АУДИО ФАЙЛ С GITHUB -->
     <audio id="audio" src="track.mp3"></audio>
 
     <!-- Основной блок -->
@@ -317,9 +348,21 @@
             <span class="subtitle">С праздником весны</span>
             <h1>8 МАРТА</h1>
             
-            <p class="message">
-                Специально для Вас.<br>Включайте звук и наслаждайтесь атмосферой.
-            </p>
+            <!-- СТИЛЬНЫЙ БЛОК С ПОЗДРАВЛЕНИЯМИ -->
+            <div class="wishes-box">
+                <div class="wish-item">
+                    <span class="wish-icon">☀️</span> Весеннего солнца, тепла и отличного настроения!
+                </div>
+                <div class="wish-item">
+                    <span class="wish-icon">💡</span> Самых крутых учеников и легких рабочих дней!
+                </div>
+                <div class="wish-item">
+                    <span class="wish-icon">🌸</span> Бесконечного вдохновения, энергии и гармонии!
+                </div>
+                <div class="wish-item">
+                    <span class="wish-icon">🔥</span> Пусть всё всегда получается на все 100%!
+                </div>
+            </div>
 
             <!-- Плеер -->
             <div class="player-controls">
@@ -333,7 +376,7 @@
                 </div>
             </div>
 
-            <!-- КНОПКА СКАЧИВАНИЯ (ссылается на локальный файл) -->
+            <!-- КНОПКА СКАЧИВАНИЯ -->
             <a href="track.mp3" download="Трек_8_Марта.mp3" class="download-btn">
                 <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
                 Скачать трек
@@ -469,3 +512,4 @@
     </script>
 </body>
 </html>
+
