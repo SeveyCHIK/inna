@@ -47,7 +47,7 @@
             transition: background 0.5s ease;
         }
 
-        /* --- КОНТЕЙНЕР ДЛЯ ЛЕТАЮЩИХ ЧАСТИЦ --- */
+        /* --- ЧАСТИЦЫ --- */
         #particles-container {
             position: absolute;
             top: 0; left: 0;
@@ -60,12 +60,10 @@
         .particle {
             position: absolute;
             bottom: -20px;
-            width: 4px; height: 4px;
             background-color: var(--primary-color);
             border-radius: 50%;
             box-shadow: 0 0 10px var(--primary-color), 0 0 20px var(--primary-color);
             opacity: 0;
-            /* Анимация назначается через JS */
         }
 
         @keyframes floatUp {
@@ -115,8 +113,9 @@
             position: relative;
             z-index: 10;
             opacity: 0;
+            visibility: hidden; /* Скрываем полностью до загрузки */
             transform: translateY(30px);
-            transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: opacity 1s ease, transform 1s cubic-bezier(0.16, 1, 0.3, 1);
             width: 100%;
             display: flex;
             justify-content: center;
@@ -125,6 +124,7 @@
 
         #main-wrapper.visible {
             opacity: 1;
+            visibility: visible;
             transform: translateY(0);
         }
 
@@ -196,6 +196,7 @@
             transform: translateY(15px); 
             position: relative;
             padding: 0 10px;
+            transition: opacity 0.8s ease, transform 0.8s ease;
         }
 
         .wish-item:not(:last-child)::after {
@@ -212,11 +213,8 @@
         }
 
         .wish-item.show-wish {
-            animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        @keyframes fadeUp {
-            to { opacity: 1; transform: translateY(0); }
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .wish-item strong {
@@ -245,7 +243,7 @@
             color: var(--primary-color);
             cursor: pointer;
             display: flex; justify-content: center; align-items: center;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.3s ease;
             box-shadow: 0 0 15px var(--glow-color) inset;
             flex-shrink: 0;
         }
@@ -256,11 +254,7 @@
             color: #000;
         }
 
-        .play-btn svg {
-            width: 22px; height: 22px;
-            fill: currentColor;
-            margin-left: 4px;
-        }
+        .play-btn svg { width: 22px; height: 22px; fill: currentColor; margin-left: 4px; }
         
         .icon-pause { display: none; margin-left: 0 !important; }
         .playing .icon-play { display: none; }
@@ -373,6 +367,7 @@
 
     <div class="ambient-bg"></div>
 
+    <!-- АУДИО ФАЙЛ -->
     <audio id="audio" src="track.mp3"></audio>
 
     <!-- Основной блок -->
@@ -384,19 +379,11 @@
             <span class="subtitle">С праздником весны</span>
             <h1>8 МАРТА</h1>
             
-            <div class="wishes-box">
-                <div class="wish-item">
-                    Огромного весеннего солнца, тепла и <strong>отличного настроения</strong> каждый день!
-                </div>
-                <div class="wish-item">
-                    Пусть работа приносит только радость, а ученики <strong>приятно удивляют</strong>.
-                </div>
-                <div class="wish-item">
-                    Бесконечного вдохновения, энергии и <strong>внутренней гармонии</strong>.
-                </div>
-                <div class="wish-item">
-                    Оставайтесь такой же <strong>потрясающей и яркой</strong>. С праздником!
-                </div>
+            <div class="wishes-box" id="wishes-box">
+                <div class="wish-item">Огромного весеннего солнца, тепла и <strong>отличного настроения</strong> каждый день!</div>
+                <div class="wish-item">Пусть работа приносит только радость, а ученики <strong>приятно удивляют</strong>.</div>
+                <div class="wish-item">Бесконечного вдохновения, энергии и <strong>внутренней гармонии</strong>.</div>
+                <div class="wish-item">Оставайтесь такой же <strong>потрясающей и яркой</strong>. С праздником!</div>
             </div>
 
             <!-- Плеер -->
@@ -422,33 +409,41 @@
     <div class="author">Made by <span>Абдрахимов Тамирлан</span></div>
 
     <script>
-        // --- 1. ГАРАНТИРОВАННОЕ СКРЫТИЕ ЗАСТАВКИ ---
-        function showContent() {
-            const preloader = document.getElementById('preloader');
-            const mainWrapper = document.getElementById('main-wrapper');
-            
-            if (preloader.style.display !== 'none') {
-                preloader.classList.add('hidden');
-                setTimeout(() => {
-                    mainWrapper.classList.add('visible');
-                    preloader.style.display = 'none';
+        // --- 1. ГАРАНТИРОВАННОЕ СКРЫТИЕ ЗАСТАВКИ (С защитой от ошибок) ---
+        document.addEventListener("DOMContentLoaded", () => {
+            setTimeout(() => {
+                try {
+                    const preloader = document.getElementById('preloader');
+                    const mainWrapper = document.getElementById('main-wrapper');
                     
-                    const wishes = document.querySelectorAll('.wish-item');
-                    wishes.forEach((wish, index) => {
-                        setTimeout(() => {
-                            wish.classList.add('show-wish');
-                        }, 400 + (index * 200)); 
-                    });
-                }, 400); 
-            }
-        }
-        setTimeout(showContent, 2500);
+                    preloader.classList.add('hidden');
+                    
+                    setTimeout(() => {
+                        preloader.style.display = 'none';
+                        mainWrapper.classList.add('visible');
+                        
+                        // Анимация текста поздравлений
+                        const wishes = document.querySelectorAll('.wish-item');
+                        wishes.forEach((wish, index) => {
+                            setTimeout(() => {
+                                wish.classList.add('show-wish');
+                            }, 500 + (index * 250)); 
+                        });
+                    }, 500);
+                } catch(e) {
+                    console.error("Ошибка при скрытии заставки:", e);
+                    // Жесткий фолбэк, если всё сломалось
+                    document.getElementById('preloader').style.display = 'none';
+                    document.getElementById('main-wrapper').style.opacity = '1';
+                    document.getElementById('main-wrapper').style.visibility = 'visible';
+                }
+            }, 2500);
+        });
 
         // --- 2. СМЕНА ТЕМ ---
         function changeTheme(primary, dark) {
             const root = document.documentElement;
             root.style.setProperty('--primary-color', primary);
-            
             let r = parseInt(primary.slice(1, 3), 16),
                 g = parseInt(primary.slice(3, 5), 16),
                 b = parseInt(primary.slice(5, 7), 16);
@@ -456,38 +451,35 @@
             root.style.setProperty('--bg-dark', dark);
         }
 
-        // --- 3. ГЕНЕРАТОР ЛЕТАЮЩИХ ЧАСТИЦ (ДИНАМИКА НА ФОНЕ) ---
+        // --- 3. ГЕНЕРАТОР ЛЕТАЮЩИХ ЧАСТИЦ ---
         const particlesContainer = document.getElementById('particles-container');
         let particleInterval;
 
         function createParticle() {
-            const particle = document.createElement('div');
-            particle.classList.add('particle');
-            
-            // Случайная позиция по ширине (от 0 до 100vw)
-            const leftPos = Math.random() * 100;
-            // Случайный размер (от 3 до 8px)
-            const size = Math.random() * 5 + 3;
-            // Случайное время полета (от 4 до 8 секунд)
-            const duration = Math.random() * 4 + 4;
-            
-            particle.style.left = `${leftPos}vw`;
-            particle.style.width = `${size}px`;
-            particle.style.height = `${size}px`;
-            particle.style.animation = `floatUp ${duration}s ease-in forwards`;
-            
-            particlesContainer.appendChild(particle);
-            
-            // Удаляем частицу из HTML после того, как она улетела вверх (чтобы не тормозил телефон)
-            setTimeout(() => {
-                particle.remove();
-            }, duration * 1000);
+            try {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                const leftPos = Math.floor(Math.random() * 100);
+                const size = Math.floor(Math.random() * 5) + 3;
+                const duration = Math.floor(Math.random() * 4) + 4;
+                
+                particle.style.left = `${leftPos}vw`;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.animation = `floatUp ${duration}s ease-in forwards`;
+                
+                particlesContainer.appendChild(particle);
+                
+                setTimeout(() => {
+                    if (particle.parentNode) particle.remove();
+                }, duration * 1000);
+            } catch(e) {}
         }
 
         function startParticles() {
-            // Создаем по одной частице каждые 300мс
             if (!particleInterval) {
-                particleInterval = setInterval(createParticle, 300);
+                particleInterval = setInterval(createParticle, 400); // Чуть реже, чтобы не грузить телефон
             }
         }
 
@@ -496,8 +488,7 @@
             particleInterval = null;
         }
 
-
-        // --- 4. ПЛЕЕР И АНАЛИЗАТОР ЗВУКА (СИЛЬНЫЙ БАС) ---
+        // --- 4. ПЛЕЕР И АНАЛИЗАТОР ЗВУКА ---
         const audio = document.getElementById('audio');
         const playBtn = document.getElementById('play-btn');
         const progressContainer = document.getElementById('progress-container');
@@ -509,11 +500,11 @@
 
         function initAudio() {
             if (isAudioInitialized) return;
-            
             try {
                 const AudioContext = window.AudioContext || window.webkitAudioContext;
-                audioCtx = new AudioContext();
+                if (!AudioContext) return; // Защита для очень старых браузеров
                 
+                audioCtx = new AudioContext();
                 const source = audioCtx.createMediaElementSource(audio);
                 analyser = audioCtx.createAnalyser();
                 
@@ -527,80 +518,15 @@
                 isAudioInitialized = true;
                 renderVisualizer();
             } catch (e) {
-                console.error("Ошибка Web Audio API:", e);
+                console.error("Audio API Error:", e);
             }
         }
 
         function renderVisualizer() {
             if(!isAudioInitialized) return;
-            
             requestAnimationFrame(renderVisualizer);
             
             if (!audio.paused) {
                 analyser.getByteFrequencyData(dataArray);
-                
                 let sum = 0;
-                for(let i = 0; i < 4; i++) { sum += dataArray[i]; }
-                let average = sum / 4;
-                
-                let glowSize = 0;
-                if (average > 80) {
-                    glowSize = (average - 80) * 0.8; 
-                }
-                
-                const currentColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim();
-                let r = parseInt(currentColor.slice(1, 3), 16);
-                let g = parseInt(currentColor.slice(3, 5), 16);
-                let b = parseInt(currentColor.slice(5, 7), 16);
-                
-                visualizer.style.boxShadow = `0 0 ${glowSize}px ${glowSize/2}px rgba(${r},${g},${b}, 0.8)`;
-            } else {
-                visualizer.style.boxShadow = `0 0 0 0px rgba(0,0,0,0)`;
-            }
-        }
-
-        playBtn.addEventListener('click', () => {
-            initAudio();
-            
-            if (audioCtx && audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
-
-            if (audio.paused) {
-                audio.play().catch(e => console.error("Ошибка воспроизведения:", e));
-                playBtn.classList.add('playing');
-                startParticles(); // ЗАПУСКАЕМ ЧАСТИЦЫ НА ФОНЕ ПРИ ВОСПРОИЗВЕДЕНИИ
-            } else {
-                audio.pause();
-                playBtn.classList.remove('playing');
-                stopParticles(); // ОСТАНАВЛИВАЕМ ЧАСТИЦЫ ПРИ ПАУЗЕ
-            }
-        });
-
-        audio.addEventListener('timeupdate', () => {
-            if (!isNaN(audio.duration)) {
-                const percent = (audio.currentTime / audio.duration) * 100;
-                progressBar.style.width = `${percent}%`;
-            }
-        });
-
-        progressContainer.addEventListener('click', (e) => {
-            const rect = progressContainer.getBoundingClientRect();
-            const clickX = e.clientX - rect.left;
-            const width = rect.width;
-            
-            if (width > 0 && !isNaN(audio.duration)) {
-                audio.currentTime = (clickX / width) * audio.duration;
-            }
-        });
-
-        audio.addEventListener('ended', () => {
-            playBtn.classList.remove('playing');
-            progressBar.style.width = '0%';
-            visualizer.style.boxShadow = `0 0 0 0px rgba(0,0,0,0)`;
-            stopParticles(); // ОСТАНАВЛИВАЕМ ЧАСТИЦЫ В КОНЦЕ ТРЕКА
-        });
-
-    </script>
-</body>
-</html>
+          
