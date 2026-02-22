@@ -163,7 +163,7 @@
             align-items: center;
             justify-content: center;
             gap: 15px;
-            margin-bottom: 25px; /* Увеличил отступ до кнопки скачивания */
+            margin-bottom: 25px;
         }
 
         .play-btn {
@@ -208,6 +208,7 @@
             border-radius: 5px;
             position: relative;
             overflow: hidden;
+            cursor: pointer;
         }
 
         .progress-bar {
@@ -235,7 +236,6 @@
             letter-spacing: 1px;
             text-transform: uppercase;
             transition: all 0.3s ease;
-            /* Легкое свечение */
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
 
@@ -304,8 +304,9 @@
 
     <div class="ambient-bg"></div>
 
-    <!-- ТВОЯ ССЫЛКА НА АУДИО. Атрибут crossorigin="anonymous" ВАЖЕН для визуализатора! -->
-    <audio id="audio" src="https://getfile.dokpub.com/yandex/get/https://disk.yandex.ru/d/6ps01_VbDlCtQg" crossorigin="anonymous"></audio>
+    <!-- ЛОКАЛЬНЫЙ АУДИО ФАЙЛ (ЗАГРУЖЕННЫЙ НА GITHUB ВМЕСТЕ С HTML) -->
+    <!-- Никаких crossorigin, так как файл на том же сервере -->
+    <audio id="audio" src="track.mp3"></audio>
 
     <!-- Основной блок -->
     <div id="main-wrapper">
@@ -323,9 +324,7 @@
             <!-- Плеер -->
             <div class="player-controls">
                 <div class="play-btn" id="play-btn">
-                    <!-- Иконка Play -->
                     <svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                    <!-- Иконка Pause -->
                     <svg class="icon-pause" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
                 </div>
                 
@@ -334,9 +333,8 @@
                 </div>
             </div>
 
-            <!-- КНОПКА СКАЧИВАНИЯ -->
-            <!-- Атрибут download говорит браузеру скачать файл, а не открывать его -->
-            <a href="https://getfile.dokpub.com/yandex/get/https://disk.yandex.ru/d/6ps01_VbDlCtQg" download="8_Марта.mp3" class="download-btn">
+            <!-- КНОПКА СКАЧИВАНИЯ (ссылается на локальный файл) -->
+            <a href="track.mp3" download="Трек_8_Марта.mp3" class="download-btn">
                 <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
                 Скачать трек
             </a>
@@ -383,7 +381,6 @@
         function initAudio() {
             if (isAudioInitialized) return;
             
-            // Обработка ошибки CORS (если сервер вдруг заблокирует анализ звука)
             try {
                 const AudioContext = window.AudioContext || window.webkitAudioContext;
                 audioCtx = new AudioContext();
@@ -401,8 +398,7 @@
                 isAudioInitialized = true;
                 renderVisualizer();
             } catch (e) {
-                console.error("Ошибка Web Audio API (возможно блокировка CORS сервисом Яндекса):", e);
-                // Музыка будет играть, но кольцо пульсировать не будет.
+                console.error("Ошибка Web Audio API:", e);
             }
         }
 
@@ -439,7 +435,6 @@
             }
 
             if (audio.paused) {
-                // Если аудио еще не загружено, может быть небольшая задержка
                 audio.play().catch(e => console.error("Ошибка воспроизведения:", e));
                 playBtn.classList.add('playing');
             } else {
@@ -469,15 +464,6 @@
             playBtn.classList.remove('playing');
             progressBar.style.width = '0%';
             visualizer.style.boxShadow = `0 0 0 0px rgba(0,0,0,0)`;
-        });
-
-        // Обработка загрузки файла (чтобы кнопка визуально реагировала на ожидание)
-        audio.addEventListener('waiting', () => {
-            // Можно добавить класс загрузки, если сеть медленная
-            playBtn.style.opacity = '0.5';
-        });
-        audio.addEventListener('canplay', () => {
-            playBtn.style.opacity = '1';
         });
 
     </script>
